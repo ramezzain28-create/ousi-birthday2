@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ousi's Universe | 05.07</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* التصميم العصري - Dark Nebula Style */
+        :root {
+            --accent: #ff0055;
+            --blue: #00d2ff;
+            --yellow: #f1ff5c;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: #050505; color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #main-canvas {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+            z-index: 5; transition: box-shadow 1s ease;
+        }
+
+        .content { text-align: center; z-index: 10; width: 90%; max-width: 500px; }
+
+        .target-title {
+            font-size: 3.5rem; letter-spacing: 12px; margin: 0; font-weight: 900;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        #timer { font-family: monospace; font-size: 1.1rem; color: var(--accent); margin: 15px 0; letter-spacing: 2px; }
+
+        .orbital-system {
+            height: 280px; position: relative; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        .node {
+            width: 85px; height: 85px; border-radius: 50%;
+            position: absolute; cursor: pointer;
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            border: 3px solid rgba(255,255,255,0.2);
+            background-color: #111;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* الروابط المباشرة للصور */
+        .bubbles { background-image: url('https://www.pngarts.com/files/3/Bubbles-Powerpuff-Girls-PNG-Transparent-Image.png'); }
+        .catwoman { background-image: url('https://www.pngall.com/wp-content/uploads/12/Catwoman-DC-Comics-PNG-Images.png'); }
+        .fluttershy { background-image: url('https://www.pngplay.com/wp-content/uploads/12/Fluttershy-My-Little-Pony-PNG-Photos.png'); }
+
+        .status-box { margin: 30px 0; min-height: 100px; padding: 0 10px; }
+        #status-text { line-height: 1.6; font-size: 0.95rem; color: #ccc; }
+        #status-text strong { display: block; color: white; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; }
+
+        #action-trigger {
+            background: transparent; border: 1px solid white; color: white;
+            padding: 12px 40px; cursor: pointer; letter-spacing: 2px;
+            text-transform: uppercase; font-size: 0.8rem; transition: 0.3s;
+        }
+        #action-trigger:hover { background: white; color: black; }
+
+        /* شاشة المزحة */
+        #hacker-screen {
+            position: fixed; inset: 0; background: black; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            color: #0f0; font-family: monospace; padding: 20px;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="hacker-screen" class="hidden"></div>
+
+    <div id="main-canvas">
+        <div class="vignette" id="vignette"></div>
+        
+        <div class="content">
+            <h1 class="target-title">OUSI</h1>
+            <div id="timer">00D 00H 00M 00S</div>
+
+            <div class="orbital-system">
+                <div class="node bubbles" onclick="trigger('bubbles')"></div>
+                <div class="node catwoman" onclick="trigger('catwoman')"></div>
+                <div class="node fluttershy" onclick="trigger('fluttershy')"></div>
+            </div>
+
+            <div class="status-box">
+                <p id="status-text">CLICK A PLANET TO EXPLORE OUSI'S UNIVERSE</p>
+            </div>
+
+            <button id="action-trigger">RUN SYSTEM CHECK</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. العداد التنازلي ليوم 7 مايو
+        function updateTimer() {
+            const birthday = new Date('May 7, 2026 00:00:00').getTime();
+            const now = new Date().getTime();
+            const diff = birthday - now;
+            
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('timer').innerText = diff > 0 ? `${d}D ${h}H ${m}M ${s}S` : "HAPPY BIRTHDAY!";
+        }
+        setInterval(updateTimer, 1000);
+
+        // 2. توزيع الأيقونات وحركتها المدارية
+        gsap.set(".bubbles", {x: -120, y: -50});
+        gsap.set(".catwoman", {x: 120, y: -50});
+        gsap.set(".fluttershy", {x: 0, y: 120});
+
+        gsap.to(".orbital-system", { rotation: 360, duration: 25, repeat: -1, ease: "none" });
+        gsap.to(".node", { rotation: -360, duration: 25, repeat: -1, ease: "none" });
+
+        // 3. نصوص الصفات والتفاعل
+        const charData = {
+            bubbles: { t: "Joyful Power", d: "A mix of pure kindness and unexpected strength. Ousi is the soul of every moment.", c: "#00d2ff" },
+            catwoman: { t: "The Bold Queen", d: "Strong-willed and independent. Ousi doesn't follow rules; she makes them.", c: "#ff0055" },
+            fluttershy: { t: "Gentle Heart", d: "Behind the strength lies a heart of gold. Loyal, sweet, and always there.", c: "#f1ff5c" }
+        };
+
+        function trigger(char) {
+            const statusBox = document.getElementById('status-text');
+            const data = charData[char];
+            
+            gsap.to(statusBox, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+                statusBox.innerHTML = `<strong>${data.t}</strong>${data.d}`;
+                gsap.to(statusBox, { opacity: 1, y: 0, duration: 0.5 });
+            }});
+
+            gsap.to("#vignette", { boxShadow: `inset 0 0 150px ${data.c}55`, duration: 1 });
+            confetti({ particleCount: 40, spread: 60, colors: [data.c] });
+        }
+
+        // 4. مقلب الهكر والاحتفال
+        document.getElementById('action-trigger').onclick = function() {
+            const screen = document.getElementById('hacker-screen');
+            screen.classList.remove('hidden');
+            screen.innerHTML = "<div style='text-align:left'><p>> ACCESSING OUSI.SYS...</p><p>> ERROR: INTENSITY TOO HIGH</p><p>> OVERRIDING...</p></div>";
+            
+            setTimeout(() => {
+                screen.innerHTML = "<h1 style='color:white; text-align:center;'>ACCESS GRANTED.<br>HAPPY BIRTHDAY OUSI! 🎉</h1>";
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                setTimeout(() => { screen.classList.add('hidden'); }, 3000);
+            }, 3000);
+        };
+    </script>
+</body>
+</html>
