@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ousi's Universe | 05.07</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --accent: #ff0055; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #050505; color: white; font-family: sans-serif; overflow: hidden; }
+        #main-canvas { height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+        .vignette { position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px rgba(0,0,0,0.9); z-index: 5; transition: box-shadow 1s ease; }
+        .content { text-align: center; z-index: 10; width: 90%; max-width: 500px; }
+        .target-title { font-size: 3.5rem; letter-spacing: 12px; margin: 0; font-weight: 900; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #timer { font-family: monospace; font-size: 1.1rem; color: var(--accent); margin: 15px 0; }
+        .orbital-system { height: 280px; position: relative; display: flex; justify-content: center; align-items: center; }
+        
+        .node { 
+            width: 90px; height: 90px; border-radius: 50%; position: absolute; cursor: pointer; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            border: 2px solid rgba(255,255,255,0.3); background-color: #1a1a1a;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); transition: 0.3s;
+        }
+
+        /* الروابط الجديدة المضمونة */
+        .bubbles { background-image: url('https://upload.wikimedia.org/wikipedia/en/d/db/Bubbles_Puff.png'); }
+        .catwoman { background-image: url('https://upload.wikimedia.org/wikipedia/en/e/e0/Catwoman_Jim_Lee.png'); }
+        .fluttershy { background-image: url('https://upload.wikimedia.org/wikipedia/en/b/bc/Fluttershy_ID_S4E11.png'); }
+
+        .status-box { margin: 30px 0; min-height: 80px; }
+        #status-text { line-height: 1.5; font-size: 0.9rem; color: #ccc; }
+        #status-text strong { display: block; color: white; font-size: 1.1rem; letter-spacing: 2px; margin-bottom: 5px; }
+        #action-trigger { background: transparent; border: 1px solid white; color: white; padding: 12px 35px; cursor: pointer; letter-spacing: 2px; font-size: 0.75rem; }
+        #hacker-screen { position: fixed; inset: 0; background: black; z-index: 100; display: flex; align-items: center; justify-content: center; color: #0f0; font-family: monospace; padding: 20px; text-align: left; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="hacker-screen" class="hidden"></div>
+    <div id="main-canvas">
+        <div class="vignette" id="vignette"></div>
+        <div class="content">
+            <h1 class="target-title">OUSI</h1>
+            <div id="timer">00D 00H 00M 00S</div>
+            <div class="orbital-system">
+                <div class="node bubbles" onclick="trigger('bubbles')"></div>
+                <div class="node catwoman" onclick="trigger('catwoman')"></div>
+                <div class="node fluttershy" onclick="trigger('fluttershy')"></div>
+            </div>
+            <div class="status-box"><p id="status-text">TAP A PLANET TO REVEAL OUSI'S TRAITS</p></div>
+            <button id="action-trigger">RUN SECURITY SCAN</button>
+        </div>
+    </div>
+
+    <script>
+        // العداد
+        setInterval(() => {
+            const diff = new Date('May 7, 2026 00:00:00').getTime() - new Date().getTime();
+            document.getElementById('timer').innerText = `${Math.floor(diff/(1000*60*60*24))}D ${Math.floor((diff%(1000*60*60*24))/(1000*60*60))}H ${Math.floor((diff%(1000*60*60))/(1000*60))}M ${Math.floor((diff%(1000*60))/1000)}S`;
+        }, 1000);
+
+        // الحركة
+        gsap.set(".bubbles", {x: -120, y: -50});
+        gsap.set(".catwoman", {x: 120, y: -50});
+        gsap.set(".fluttershy", {x: 0, y: 120});
+        gsap.to(".orbital-system", { rotation: 360, duration: 25, repeat: -1, ease: "none" });
+        gsap.to(".node", { rotation: -360, duration: 25, repeat: -1, ease: "none" });
+
+        // الصفات
+        const data = {
+            bubbles: { t: "Joyful Power", d: "A mix of pure kindness and unexpected strength. Ousi is the soul of every moment.", c: "#00d2ff" },
+            catwoman: { t: "The Bold Queen", d: "Independent and sharp. Ousi makes her own rules with pure confidence.", c: "#ff0055" },
+            fluttershy: { t: "Gentle Heart", d: "Behind the strength lies a heart of gold. Loyal, sweet, and always there.", c: "#f1ff5c" }
+        };
+
+        function trigger(c) {
+            const b = document.getElementById('status-text');
+            b.innerHTML = `<strong>${data[c].t}</strong>${data[c].d}`;
+            gsap.to("#vignette", { boxShadow: `inset 0 0 150px ${data[c].c}55`, duration: 1 });
+            confetti({ particleCount: 35, spread: 60, colors: [data[c].c] });
+        }
+
+        // المزحة
+        document.getElementById('action-trigger').onclick = () => {
+            const s = document.getElementById('hacker-screen');
+            s.classList.remove('hidden');
+            s.innerHTML = "<div><p>> BYPASSING SECURITY...</p><p>> INTENSITY DETECTED: 100%</p></div>";
+            setTimeout(() => {
+                s.innerHTML = "<h1 style='color:white;text-align:center'>ACCESS GRANTED.<br>HAPPY BIRTHDAY OUSI! 🎉</h1>";
+                confetti({ particleCount: 150, spread: 70 });
+                setTimeout(() => s.classList.add('hidden'), 3000);
+            }, 2500);
+        };
+    </script>
+</body>
+</html>
